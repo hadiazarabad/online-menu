@@ -9,66 +9,77 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="menu-list menu-list--scroll-root">
     {% if menu_data %}
         {% for section in menu_data %}
-        <div class="menu-section fade-in">
-            <div class="category-header">
+        <section class="menu-list__section" aria-labelledby="category-{{ section.category.id }}">
+            <header class="menu-list__category-header" id="category-{{ section.category.id }}">
                 {% if section.category.has_icon %}
-                <img src="{{ section.category.icon.url }}" alt="{{ section.category.name }}" class="category-icon">
+                <div class="menu-list__category-icon-wrap">
+                    <img src="{{ section.category.icon.url }}" alt="" class="menu-list__category-icon" width="56" height="56">
+                </div>
                 {% endif %}
-                <div>
-                    <h2 class="category-title">{{ section.category.name }}</h2>
+                <div class="menu-list__category-text">
+                    <h2 class="menu-list__category-title">{{ section.category.name }}</h2>
                     {% if section.category.description %}
-                    <p class="category-description">{{ section.category.description }}</p>
+                    <p class="menu-list__category-description">{{ section.category.description }}</p>
                     {% endif %}
                 </div>
-            </div>
-            
-            <div class="food-grid">
+            </header>
+
+            <ul class="menu-list__rows" role="list">
                 {% for item in section.foods %}
-                <div class="food-card" onclick="window.location.href='{% url 'food_detail' item.food.id %}'">
-                    <div class="food-image-wrapper">
-                        {% if item.food.has_header_image %}
-                        <img src="{{ item.food.header_image.url }}" alt="{{ item.food.name }}" class="food-image">
-                        {% else %}
-                        <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: linear-gradient(135deg, #D4AF37 0%, #FF6B35 100%); color: white; font-size: 3rem; opacity: 0.3;">
-                            <span>🍽️</span>
-                        </div>
-                        {% endif %}
-                        <div class="food-badges">
+                <li class="food-row">
+                    <button type="button" class="food-row__link" data-food-id="{{ item.food.id }}" aria-label="View details for {{ item.food.name }}">
+                        <div class="food-row__image-wrap">
+                            {% if item.food.has_header_image %}
+                            <img src="{{ item.food.header_image.url }}" alt="" class="food-row__image" loading="lazy" width="320" height="200">
+                            {% else %}
+                            <div class="food-row__image-placeholder" aria-hidden="true"></div>
+                            {% endif %}
                             {% if item.has_discount %}
-                            <span class="badge badge-discount">{{ item.food.discount|format_discount }}</span>
+                            <span class="food-row__badge food-row__badge--discount">{{ item.food.discount|format_discount }}</span>
                             {% endif %}
                         </div>
-                    </div>
-                    <div class="food-content">
-                        <h3 class="food-name">{{ item.food.name }}</h3>
-                        {% if item.food.description %}
-                        <p class="food-description">{{ item.food.description }}</p>
-                        {% else %}
-                        <p class="food-description">Delicious and carefully prepared with the finest ingredients.</p>
-                        {% endif %}
-                        <div class="food-footer">
-                            <div class="price">
-                                {% if item.has_discount %}
-                                <span class="price-original">{{ item.food.price|format_price }}</span>
+                        <div class="food-row__data">
+                            <h3 class="food-row__title">{{ item.food.name }}</h3>
+                            <p class="food-row__brief">
+                                {% if item.food.description %}
+                                {{ item.food.description|truncatechars:100 }}
+                                {% else %}
+                                Delicious and carefully prepared with the finest ingredients.
                                 {% endif %}
-                                <span class="price-final">{{ item.final_price|format_price }}</span>
-                            </div>
+                            </p>
+                            <p class="food-row__price">
+                                {% if item.has_discount %}
+                                <span class="food-row__price-original">{{ item.food.price|format_price }}</span>
+                                {% endif %}
+                                <span class="food-row__price-final">{{ item.final_price|format_price }}</span>
+                            </p>
                         </div>
-                    </div>
-                </div>
+                    </button>
+                </li>
                 {% endfor %}
-            </div>
-        </div>
+            </ul>
+        </section>
         {% endfor %}
     {% else %}
-        <div class="empty-state">
-            <h2>No Menu Items Available</h2>
-            <p>Please check back later.</p>
+        <div class="menu-list__empty" role="status">
+            <h2 class="menu-list__empty-title">No Menu Items Available</h2>
+            <p class="menu-list__empty-text">Please check back later.</p>
         </div>
     {% endif %}
 </div>
+
+<div id="food-modal" class="food-modal" role="dialog" aria-modal="true" aria-labelledby="food-modal-title" aria-hidden="true">
+    <div class="food-modal__backdrop"></div>
+    <div class="food-modal__panel">
+        <button type="button" class="food-modal__close" aria-label="Close modal">&times;</button>
+        <div id="food-modal__body" class="food-modal__body"></div>
+    </div>
+</div>
 {% endblock %}
 
+{% block extra_js %}
+<script src="{% static 'menu/js/menu_list.js' %}"></script>
+{% endblock %}
