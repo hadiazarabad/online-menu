@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'menu',
 ]
 
+INSTALLED_APPS += ["storages"]
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -101,6 +103,9 @@ else:
         }
     }
 
+use_s3_storage = config('USE_S3_STORAGE', default=False, cast=bool)
+if use_s3_storage:
+    from online_menu.extera_settings.s3_storage import *
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -126,7 +131,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = config('LANGUAGE_CODE', default='en-us')
 
-TIME_ZONE = config('TIME_ZONE', default='UTC')
+TIME_ZONE = config('TIME_ZONE', default='Europe/Rome')
 
 USE_I18N = config('USE_I18N', default=True, cast=bool)
 
