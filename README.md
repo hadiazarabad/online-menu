@@ -1,264 +1,250 @@
 # Online Menu System
 
-An online menu system built with Django tempaltes and Django REST Framework. Perfect for restaurants, cafes, and food establishments looking to showcase their menu digitally with a responsive interface and a API for frontend integration.
+**Django** · **Python** · **HTML** · **CSS** · **JavaScript** · **API** · **Django REST Framework**
 
-![Demo](demo/template.gif)
+A full-stack online menu system that serves both a **template-rendered frontend** (HTML, CSS, JavaScript via Django templates) and a **REST API** for integration. Built with Django and Django REST Framework, it is suitable for restaurants, cafes, and food establishments that need a digital menu and an API for third-party or custom frontends.
+
+---
+
+## Live Application
+
+| Environment | URL |
+|------------|-----|
+| **Production** | [online-menu.hadiazarabad.com](https://online-menu.hadiazarabad.com) |
+| **Admin panel** | [online-menu.hadiazarabad.com/admin/](https://online-menu.hadiazarabad.com/admin/) |
+
+The admin interface is customized with image previews, inline editing for food images and toppings, and clear indicators for discounts, availability, and pricing.
+
+**Demo access (read-only):** use username `test` and password `test` to explore the admin panel without making changes.
+
+---
+
+## Architecture Overview
+
+The application is **dual-purpose**:
+
+- **Frontend (Django templates):** Server-rendered HTML with dedicated CSS and JavaScript for a responsive, interactive menu (dark theme, glassmorphism, modal details, scroll-based animations).
+- **Backend API:** RESTful API (Django REST Framework) for categories, foods, and toppings—with filtering, search, pagination, and Swagger/ReDoc documentation for integration and headless use.
+
+Both the web UI and the API are served by the same Django project.
+
+---
 
 ## Features
 
 ### Core Functionality
-- Category-based Menu Organization - Organize foods by categories with custom icons
-- Food Details - Each food item includes descriptions, multiple images, and pricing
-- Topping System - Flexible topping management with individual pricing
-- Discount Management - Apply percentage-based discounts to foods and toppings
-- Time-based Availability - Set specific time windows when items are available
-- Availability Status - Mark items as available/unavailable with visual indicators
+- **Category-based menu** — Organize items by categories with optional icons
+- **Food details** — Descriptions, multiple images, pricing, and optional toppings
+- **Topping system** — Toppings with their own pricing and availability
+- **Discounts** — Percentage-based discounts on foods and toppings
+- **Time-based availability** — Optional time windows per item
+- **Availability status** — Per-item availability with visual cues
 
 ### User Interface
-- Responsive Design - Seamlessly works on desktop, tablet, and mobile devices
-- Image Gallery - Interactive image slider with modal view for food details
-- Real-time Pricing - Automatic calculation and display of discounted prices
-- Visual Badges - Clear indicators for discounts and availability status
-- Euro Currency - All prices displayed in Euro (€)
-- Separated Assets - HTML, CSS, and JavaScript files are properly separated
+- Responsive layout (desktop, tablet, mobile)
+- Modal-based food details (no full-page navigation)
+- Real-time display of discounted prices and badges
+- Euro (€) currency
+- Clear separation of HTML, CSS, and JavaScript
 
 ### API & Integration
-- RESTful API - Complete REST API built with Django REST Framework
-- Swagger Documentation - Interactive API documentation with Swagger UI
-- Advanced Filtering - Filter by category, availability, search by name/description
-- Pagination - Efficient pagination for large datasets
-- CORS Enabled - Ready for frontend integration
+- REST API (Django REST Framework)
+- Swagger UI and ReDoc
+- Filtering (category, availability), search, pagination
+- CORS configured for frontend integration
 
 ![Demo](demo/swagger.gif)
 
 ### Admin Panel
-- Customized Admin Interface - Enhanced Django admin with image previews
-- Rich Display - Visual indicators for discounts, availability, and pricing
-- Inline Editing - Manage food images and toppings directly from food pages
-- Comprehensive Filtering - Filter and search across all models
+- Customized Django admin with image previews and rich display
+- Inline editing for food images and toppings
+- Filtering and search across models
 
 ![Demo](demo/admin.gif)
+
+---
+
+## Tech Stack & Practices
+
+- **Backend:** Django, Django REST Framework  
+- **Frontend:** Django templates, HTML, CSS, JavaScript  
+- **Database:** PostgreSQL  
+- **Deployment:** Docker, GitHub Actions, Dokploy on Ubuntu  
+
+The codebase follows:
+
+- **SOLID** and **Separation of Concerns (SoC)** — Distinct layers for models, views, serializers, and templates
+- **Fat models, thin views** — Business logic and domain rules live in models and utilities; views stay thin and delegate to them
+- **OOP-focused design** — Structured for maintainability, testability, and teamwork
+
+---
+
+## CI/CD Pipeline
+
+The project uses **two fully automated pipelines** (GitHub Actions), with tests and Docker builds running on Ubuntu.
+
+| Branch        | Environment | Deploy target                          |
+|---------------|-------------|----------------------------------------|
+| `development` | Staging     | [preview-online-menu.hadiazarabad.com](https://preview-online-menu.hadiazarabad.com) |
+| `main`        | Production  | [online-menu.hadiazarabad.com](https://online-menu.hadiazarabad.com)                |
+
+**Flow:**
+
+1. **Test job** — Install deps, run migrations check, run full test suite (PostgreSQL service).
+2. **Build job** (only on push to the branch) — Build Docker image, push to Docker Hub (tags: `latest` and commit SHA).
+3. **Deploy** — Handled by Dokploy on Ubuntu (pulls the new image and updates the running service).
+
+```mermaid
+flowchart LR
+    subgraph development["Branch: development"]
+        D1[Push/PR] --> D2[Test]
+        D2 --> D3[Build & Push Image]
+        D3 --> D4[Staging Deploy]
+    end
+    subgraph main["Branch: main"]
+        M1[Push/PR] --> M2[Test]
+        M2 --> M3[Build & Push Image]
+        M3 --> M4[Production Deploy]
+    end
+    D4 --> preview["preview-online-menu.hadiazarabad.com"]
+    M4 --> prod["online-menu.hadiazarabad.com"]
+```
+
+### GitHub Actions setup
+
+1. In the repository, add secrets:
+   - `DOCKER_USERNAME` — Docker Hub username
+   - `DOCKER_PASSWORD` — Docker Hub password or access token
+
+2. On **push** to `development` or `main`: tests run, then the image is built and pushed.  
+3. On **pull requests**: only tests run (no build/push).
+
+---
 
 ## Getting Started
 
 ### Prerequisites
-- Python 3.8+
+
+- Python 3.12+
 - pip
 - Virtual environment (recommended)
-- Docker and Docker Compose (optional, for containerized deployment)
+- Docker and Docker Compose (optional)
 
-### Installation
+### Local development
 
-#### Option 1: Local Development
-
-1. Clone the repository
+1. **Clone the repository**
    ```bash
-   git clone git@github.com:mhazarabad/online-menu.git
+   git clone git@github.com:hadiazarabad/online-menu.git
    cd online-menu
    ```
 
-2. Create and activate virtual environment
+2. **Create and activate a virtual environment**
    ```bash
    python -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   source .venv/bin/activate   # Windows: .venv\Scripts\activate
    ```
 
-3. Install dependencies
+3. **Install dependencies**
    ```bash
    pip install -r requirements.txt
    ```
 
-4. Set up environment variables
+4. **Environment configuration**  
+   Use the provided template: fill in the values in `sample.env`, then rename it to `.env` so the application can load it:
    ```bash
-   cp .env.example .env
-   # Edit .env file with your configuration
+   cp sample.env .env
+   # Edit .env with your values (SECRET_KEY, ALLOWED_HOSTS, DB_*, etc.), then save.
+   # The app reads from .env at runtime.
    ```
+   For local use, set at least: `SECRET_KEY`, `ALLOWED_HOSTS` (e.g. `127.0.0.1,localhost`), and database variables (`DB_ENGINE`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`). Keep `USE_S3_STORAGE=False` unless you configure S3.
 
-5. Run migrations
+5. **Migrations**
    ```bash
    python manage.py makemigrations
    python manage.py migrate
    ```
 
-6. Create superuser (optional, for admin access)
+6. **Create superuser (optional)**
    ```bash
    python manage.py createsuperuser
    ```
 
-7. Collect static files
+7. **Static files**
    ```bash
    python manage.py collectstatic
    ```
 
-8. Run development server
+8. **Run the server**
    ```bash
    python manage.py runserver
    ```
 
-9. Access the application
-   - Web Interface: http://127.0.0.1:8000/
-   - Admin Panel: http://127.0.0.1:8000/admin/
-   - API Documentation: http://127.0.0.1:8000/swagger/
-   - ReDoc Documentation: http://127.0.0.1:8000/redoc/
+9. **Access**
+   - Web UI: http://127.0.0.1:8000/
+   - Admin: http://127.0.0.1:8000/admin/
+   - API docs: http://127.0.0.1:8000/redoc/
 
-#### Option 2: Docker Deployment
+---
 
-1. Clone the repository
-   ```bash
-   git clone git@github.com:mhazarabad/online-menu.git
-   cd online-menu
+## Optional: S3 (or S3-compatible) storage
+
+For production, media and static files can be served from **AWS S3** or an **S3-compatible** service (e.g. MinIO).
+
+### Why use S3 (or compatible)?
+
+- **Scalability** — No local disk limits; handles traffic spikes better.
+- **Durability & availability** — Replication and high availability.
+- **CDN-friendly** — Easy to put a CDN in front of assets.
+- **Separation of concerns** — App servers stay stateless; uploads and static files live in object storage.
+- **Cost** — Pay for storage and transfer; often cheaper than scaling app servers for file serving.
+
+### Setup steps
+
+1. In `.env`, set:
+   ```env
+   USE_S3_STORAGE=True
+   MINIO_ENDPOINT_URL=https://your-endpoint.com   # or AWS S3 endpoint
+   MINIO_BUCKET_NAME=your-bucket
+   MINIO_ACCESS_KEY=your-access-key
+   MINIO_SECRET_KEY=your-secret-key
+   REGION_NAME=your-region
    ```
 
-2. Set up environment variables
-   ```bash
-   cp .env.example .env
-   # Edit .env file with your production configuration
-   ```
+2. Ensure `django-storages` and `boto3` are in `requirements.txt` (they are in this project).
 
-3. Build and run with Docker Compose
-   ```bash
-   docker-compose up -d --build
-   ```
+3. The project includes an extra settings module that configures S3 for both **default (media)** and **staticfiles** storage when `USE_S3_STORAGE=True`. Static files use cache-control headers suitable for long-lived assets.
 
-4. Run migrations
-   ```bash
-   docker-compose exec web python manage.py migrate
-   ```
+4. Run `python manage.py collectstatic` so static files are uploaded to S3. New media uploads (e.g. food images) will go to S3 automatically.
 
-5. Create superuser
-   ```bash
-   docker-compose exec web python manage.py createsuperuser
-   ```
-
-6. Collect static files
-   ```bash
-   docker-compose exec web python manage.py collectstatic --noinput
-   ```
-
-7. Access the application
-   - Web Interface: http://localhost:8000/
-   - Admin Panel: http://localhost:8000/admin/
-
-#### Option 3: Docker (Standalone)
-
-1. Build the Docker image
-   ```bash
-   docker build -t online-menu .
-   ```
-
-2. Run the container
-   ```bash
-   docker run -d \
-     -p 8000:8000 \
-     -e SECRET_KEY=your-secret-key \
-     -e DEBUG=False \
-     -e ALLOWED_HOSTS=your-domain.com \
-     -e DB_ENGINE=django.db.backends.postgresql \
-     -e DB_NAME=onlinemenu \
-     -e DB_USER=onlinemenu \
-     -e DB_PASSWORD=your-password \
-     -e DB_HOST=your-db-host \
-     -e DB_PORT=5432 \
-     --name online-menu \
-     online-menu
-   ```
-
-## CI/CD with GitHub Actions
-
-This project includes GitHub Actions workflows for automated testing and deployment.
-
-### Workflow Features
-- **Automated Testing** - Runs test suite on every push and pull request
-- **Database Testing** - Uses PostgreSQL service for integration tests
-- **Docker Build** - Automatically builds and pushes Docker images on main branch
-- **Multi-stage Pipeline** - Tests must pass before building Docker images
-
-### Setting Up GitHub Actions
-
-1. Add the following secrets to your GitHub repository:
-   - `DOCKER_USERNAME` - Your Docker Hub username
-   - `DOCKER_PASSWORD` - Your Docker Hub password or access token
-
-2. The workflow will automatically:
-   - Run tests on every push and pull request
-   - Build and push Docker images when code is pushed to the main branch
-   - Tag images with `latest` and commit SHA
-
-### Workflow Triggers
-- **Push to main/develop** - Runs tests and builds Docker images
-- **Pull Requests** - Runs tests only (no Docker build)
+---
 
 ## Testing
-
-Run the comprehensive test suite:
 
 ```bash
 python manage.py test
 ```
 
-Or with Docker:
+With Docker:
 
 ```bash
 docker-compose exec web python manage.py test
 ```
 
-The test suite includes:
-- Model tests (creation, relationships, business logic, properties)
-- View tests (template rendering, context data)
-- API tests (endpoints, serialization, filtering)
-- Utility function tests
+The suite covers models (creation, relations, properties), views (templates, context), API (endpoints, serialization, filters), and utilities.
 
-## Production Deployment
+---
 
-### Environment Variables
+## Production deployment
 
-Create a `.env` file with the following variables:
+- Set `DEBUG=False`, a strong `SECRET_KEY`, and correct `ALLOWED_HOSTS`.
+- Use PostgreSQL and, if needed, S3 (or compatible) for media/static files.
+- Static files are served via WhiteNoise when not using S3.
+- Use HTTPS, restrict CORS, and follow standard security hardening (headers, logging, etc.).
 
-```env
-SECRET_KEY=your-secret-key-here
-DEBUG=False
-ALLOWED_HOSTS=your-domain.com,www.your-domain.com
+Docker-based production runs the same image built by CI; configure Dokploy (or your orchestrator) to use the image and environment variables from `.env`/secrets.
 
-# PostgreSQL Database
-DB_ENGINE=django.db.backends.postgresql
-DB_NAME=onlinemenu
-DB_USER=onlinemenu
-DB_PASSWORD=your-secure-password
-DB_HOST=db
-DB_PORT=5432
-```
+---
 
-### Security Checklist
-
-Before deploying to production:
-
-1. Set `DEBUG = False`
-2. Configure proper `ALLOWED_HOSTS`
-3. Use a strong `SECRET_KEY`
-4. Set up proper database (PostgreSQL recommended)
-5. Configure static file serving (handled by WhiteNoise)
-6. Set up media file serving (consider AWS S3 or similar)
-7. Configure proper CORS origins
-8. Use HTTPS
-9. Set up proper logging
-10. Configure security headers
-
-### Docker Production Deployment
-
-1. Update `.env` file with production values
-2. Build and deploy:
-   ```bash
-   docker-compose -f docker-compose.yml up -d --build
-   ```
-3. Run migrations:
-   ```bash
-   docker-compose exec web python manage.py migrate
-   ```
-4. Collect static files:
-   ```bash
-   docker-compose exec web python manage.py collectstatic --noinput
-   ```
-   
 ## License
 
-This project is part of a portfolio and is available for educational purposes.
+This project is part of a portfolio and is available for educational and demonstration purposes.
