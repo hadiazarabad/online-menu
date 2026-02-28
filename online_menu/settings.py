@@ -25,7 +25,8 @@ SECRET_KEY = config('SECRET_KEY', cast=str, default='django-insecure-=i%k%hvybr0
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
-
+# for csrf
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='', cast=lambda v: [s.strip() for s in v.split(',') if s.strip()])
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='', cast=lambda v: [s.strip() for s in v.split(',') if s.strip()])
 
 
@@ -44,6 +45,8 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
     'menu',
 ]
+
+INSTALLED_APPS += ["storages"]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -101,6 +104,9 @@ else:
         }
     }
 
+use_s3_storage = config('USE_S3_STORAGE', default=False, cast=bool)
+if use_s3_storage:
+    from online_menu.extera_settings.s3_storage import *
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -126,7 +132,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = config('LANGUAGE_CODE', default='en-us')
 
-TIME_ZONE = config('TIME_ZONE', default='UTC')
+TIME_ZONE = config('TIME_ZONE', default='Europe/Rome')
 
 USE_I18N = config('USE_I18N', default=True, cast=bool)
 

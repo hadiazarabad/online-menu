@@ -1,10 +1,10 @@
-name: CI/CD Pipeline
+name: CI/CD Pipeline Staging
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ development ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ development ]
 
 jobs:
   test:
@@ -58,7 +58,7 @@ jobs:
   build:
     needs: test
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/development'
     
     steps:
     - uses: actions/checkout@v3
@@ -68,8 +68,9 @@ jobs:
     
     - name: Login to Docker Hub
       if: github.event_name != 'pull_request'
-      uses: docker/login-action@v2
+      uses: docker/login-action@v3
       with:
+        registry: https://index.docker.io/v1/
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
     
@@ -79,8 +80,8 @@ jobs:
         context: .
         push: ${{ github.event_name != 'pull_request' }}
         tags: |
-          ${{ secrets.DOCKER_USERNAME }}/online-menu:latest
-          ${{ secrets.DOCKER_USERNAME }}/online-menu:${{ github.sha }}
-        cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/online-menu:buildcache
-        cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/online-menu:buildcache,mode=max
+          ${{ secrets.DOCKER_USERNAME }}/preview-online-menu:latest
+          ${{ secrets.DOCKER_USERNAME }}/preview-online-menu:${{ github.sha }}
+        cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/preview-online-menu:buildcache
+        cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/preview-online-menu:buildcache,mode=max
 

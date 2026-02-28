@@ -8,3 +8,5 @@ drf-yasg
 gunicorn
 psycopg2-binary
 whitenoise
+django-storages[s3]
+boto3
