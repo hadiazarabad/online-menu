@@ -5,7 +5,7 @@
 {% block title %}Menu - Online Menu{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'menu/css/menu_list.css' %}">
+<link rel="stylesheet" href="{% static 'menu/css/menu_list.css' %}?v=2">
 {% endblock %}
 
 {% block content %}
@@ -16,7 +16,7 @@
             <header class="menu-list__category-header" id="category-{{ section.category.id }}">
                 {% if section.category.has_icon %}
                 <div class="menu-list__category-icon-wrap">
-                    <img src="{{ section.category.icon.url }}" alt="" class="menu-list__category-icon" width="56" height="56">
+                    <img src="{{ section.category.icon.url }}" alt="" class="menu-list__category-icon" width="56" height="56" loading="lazy">
                 </div>
                 {% endif %}
                 <div class="menu-list__category-text">
@@ -30,10 +30,10 @@
             <ul class="menu-list__rows" role="list">
                 {% for item in section.foods %}
                 <li class="food-row">
-                    <button type="button" class="food-row__link" data-food-id="{{ item.food.id }}" aria-label="View details for {{ item.food.name }}">
+                    <button type="button" class="food-row__link" onclick="menuModal.open({{ item.food.id }})" aria-label="View details for {{ item.food.name }}">
                         <div class="food-row__image-wrap">
                             {% if item.food.has_header_image %}
-                            <img src="{{ item.food.header_image.url }}" alt="" class="food-row__image" loading="lazy" width="320" height="200">
+                            <img src="{{ item.food.header_image.url }}" alt="{{ item.food.name }}" class="food-row__image" loading="lazy" width="320" height="200">
                             {% else %}
                             <div class="food-row__image-placeholder" aria-hidden="true"></div>
                             {% endif %}
@@ -71,15 +71,89 @@
     {% endif %}
 </div>
 
-<div id="food-modal" class="food-modal" role="dialog" aria-modal="true" aria-labelledby="food-modal-title" aria-hidden="true">
-    <div class="food-modal__backdrop"></div>
+<!-- Modal: all food bodies are pre-rendered; JS shows/hides the correct one -->
+<div id="food-modal" class="food-modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="food-modal__backdrop" onclick="menuModal.close()"></div>
     <div class="food-modal__panel">
-        <button type="button" class="food-modal__close" aria-label="Close modal">&times;</button>
-        <div id="food-modal__body" class="food-modal__body"></div>
+        <button type="button" class="food-modal__close" onclick="menuModal.close()" aria-label="Close modal">&times;</button>
+        <div class="food-modal__body">
+            {% for section in menu_data %}
+                {% for item in section.foods %}
+                <div id="food-modal-body-{{ item.food.id }}"
+                     class="food-modal__body-inner"
+                     data-food-id="{{ item.food.id }}"
+                     style="display:none;">
+
+                    {% if item.image_urls %}
+                    <div class="food-modal__banner-wrap" data-current-index="0">
+                        {% for url in item.image_urls %}
+                        <div class="food-modal__slide" style="display:{% if forloop.first %}block{% else %}none{% endif %};">
+                            <img src="{{ url }}" alt="" class="food-modal__banner">
+                        </div>
+                        {% endfor %}
+                        {% if item.image_urls|length > 1 %}
+                        <button type="button" class="food-modal__btn-nav food-modal__btn-prev"
+                                onclick="menuModal.prev(this)" aria-label="Previous image">&#10094;</button>
+                        <button type="button" class="food-modal__btn-nav food-modal__btn-next"
+                                onclick="menuModal.next(this)" aria-label="Next image">&#10095;</button>
+                        {% endif %}
+                    </div>
+                    {% if item.image_urls|length > 1 %}
+                    <div class="food-modal__gallery">
+                        {% for url in item.image_urls %}
+                        <button type="button"
+                                class="food-modal__thumb{% if forloop.first %} food-modal__thumb--active{% endif %}"
+                                onclick="menuModal.thumb(this, {{ forloop.counter0 }})"
+                                aria-label="Image {{ forloop.counter }}">
+                            <img src="{{ url }}" alt="">
+                        </button>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% endif %}
+
+                    <h2 class="food-modal__title">{{ item.food.name }}</h2>
+
+                    {% if item.has_discount %}
+                    <div class="food-modal__badges">
+                        <span class="food-modal__badge food-modal__badge--discount">{{ item.food.discount|format_discount }} OFF</span>
+                    </div>
+                    {% endif %}
+
+                    {% if item.food.description %}
+                    <div class="food-modal__description">{{ item.food.description }}</div>
+                    {% endif %}
+
+                    <div class="food-modal__price">
+                        {% if item.has_discount %}
+                        <span class="food-modal__price-original">{{ item.food.price|format_price }}</span>
+                        {% endif %}
+                        <span>{{ item.final_price|format_price }}</span>
+                    </div>
+
+                    {% if item.available_toppings %}
+                    <h3 class="food-modal__toppings-title">Available Toppings</h3>
+                    <ul class="food-modal__toppings-list">
+                        {% for tp in item.available_toppings %}
+                        <li class="food-modal__topping">
+                            <span class="food-modal__topping-name">{{ tp.topping.name }}</span>
+                            {% if tp.topping.description %}
+                            <span class="food-modal__topping-desc">{{ tp.topping.description }}</span>
+                            {% endif %}
+                            &mdash; {{ tp.final_price|format_price }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+
+                </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'menu/js/menu_list.js' %}"></script>
+<script src="{% static 'menu/js/menu_list.js' %}?v=2"></script>
 {% endblock %}

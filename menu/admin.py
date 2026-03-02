@@ -4,6 +4,7 @@ from django.utils import timezone
 from menu.models import Category, Food, FoodImage, Topping, FoodTopping
 from menu.utils.availability import is_food_available
 from menu.utils.pricing import calculate_final_price
+from django.utils.safestring import mark_safe
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -40,8 +41,8 @@ class FoodImageInline(admin.TabularInline):
     
     def display_image(self, obj):
         if obj.image:
-            return format_html('<img src="{}" width="100" height="100" style="object-fit: cover; border-radius: 4px;" />', obj.image.url)
-        return '-'
+            return mark_safe(f'<img src="{obj.image.url}" width="100" height="100" style="object-fit: cover; border-radius: 4px;" />')
+        return mark_safe('-')
     display_image.short_description = 'Preview'
 
 class FoodToppingInline(admin.TabularInline):
@@ -76,37 +77,37 @@ class FoodAdmin(admin.ModelAdmin):
     
     def display_header_image(self, obj):
         if obj.header_image:
-            return format_html('<img src="{}" width="150" height="150" style="object-fit: cover; border-radius: 8px;" />', obj.header_image.url)
+            return mark_safe(f'<img src="{obj.header_image.url}" width="150" height="150" style="object-fit: cover; border-radius: 8px;" />')
         return '-'
     display_header_image.short_description = 'Header Image'
     
     def price_display(self, obj):
-        return f'€{obj.price}'
+        return mark_safe(f'€{obj.price}')
     price_display.short_description = 'Price'
     
     def discount_display(self, obj):
         if obj.discount and obj.discount > 0:
-            return format_html('<span style="color: #e74c3c; font-weight: bold;">{}%</span>', obj.discount)
-        return '-'
+            return mark_safe(f'<span style="color: #e74c3c; font-weight: bold;">{obj.discount}%</span>')
+        return mark_safe('-')
     discount_display.short_description = 'Discount'
     
     def availability_status(self, obj):
         is_avail = is_food_available(obj)
         if is_avail:
-            return format_html('<span style="color: #27ae60; font-weight: bold;">Available</span>')
-        return format_html('<span style="color: #e74c3c; font-weight: bold;">Unavailable</span>')
+            return mark_safe(f'<span style="color: #27ae60; font-weight: bold;">Available</span>')
+        return mark_safe(f'<span style="color: #e74c3c; font-weight: bold;">Unavailable</span>')
     availability_status.short_description = 'Status'
     
     def final_price_display(self, obj):
         if obj.price is None:
-            return '-'
+            return mark_safe('-')
         final_price = calculate_final_price(obj.price, obj.discount)
         if obj.discount and obj.discount > 0:
-            return format_html(
+            return mark_safe(
                 '<span style="text-decoration: line-through; color: #95a5a6;">€{}</span> <span style="color: #e74c3c; font-weight: bold; font-size: 1.2em;">€{}</span>',
                 obj.price, final_price
             )
-        return format_html('<span style="font-weight: bold;">€{}</span>', obj.price)
+        return mark_safe(f'<span style="font-weight: bold;">€{obj.price}</span>')
     final_price_display.short_description = 'Final Price'
 
 @admin.register(Topping)
@@ -133,28 +134,28 @@ class ToppingAdmin(admin.ModelAdmin):
     )
     
     def price_display(self, obj):
-        return f'€{obj.price}'
+        return mark_safe(f'€{obj.price}')
     price_display.short_description = 'Price'
     
     def discount_display(self, obj):
         if obj.discount and obj.discount > 0:
-            return format_html('<span style="color: #e74c3c; font-weight: bold;">{}%</span>', obj.discount)
-        return '-'
+            return mark_safe(f'<span style="color: #e74c3c; font-weight: bold;">{obj.discount}%</span>')
+        return mark_safe('-')
     discount_display.short_description = 'Discount'
     
     def availability_status(self, obj):
         now = timezone.now().time()
         if not obj.is_available:
-            return format_html('<span style="color: #e74c3c; font-weight: bold;">Unavailable</span>')
+            return mark_safe(f'<span style="color: #e74c3c; font-weight: bold;">Unavailable</span>')
         if obj.available_from and obj.available_to:
             if obj.available_from <= obj.available_to:
                 is_avail = obj.available_from <= now <= obj.available_to
             else:
                 is_avail = now >= obj.available_from or now <= obj.available_to
             if is_avail:
-                return format_html('<span style="color: #27ae60; font-weight: bold;">Available</span>')
-            return format_html('<span style="color: #e74c3c; font-weight: bold;">Unavailable</span>')
-        return format_html('<span style="color: #27ae60; font-weight: bold;">Available</span>')
+                return mark_safe(f'<span style="color: #27ae60; font-weight: bold;">Available</span>')
+            return mark_safe(f'<span style="color: #e74c3c; font-weight: bold;">Unavailable</span>')
+        return mark_safe(f'<span style="color: #27ae60; font-weight: bold;">Available</span>')
     availability_status.short_description = 'Status'
     
     def final_price_display(self, obj):
@@ -162,11 +163,11 @@ class ToppingAdmin(admin.ModelAdmin):
             return '-'
         final_price = calculate_final_price(obj.price, obj.discount)
         if obj.discount and obj.discount > 0:
-            return format_html(
+            return mark_safe(
                 '<span style="text-decoration: line-through; color: #95a5a6;">€{}</span> <span style="color: #e74c3c; font-weight: bold; font-size: 1.2em;">€{}</span>',
                 obj.price, final_price
             )
-        return format_html('<span style="font-weight: bold;">€{}</span>', obj.price)
+        return mark_safe(f'<span style="font-weight: bold;">€{obj.price}</span>')
     final_price_display.short_description = 'Final Price'
 
 @admin.register(FoodTopping)
