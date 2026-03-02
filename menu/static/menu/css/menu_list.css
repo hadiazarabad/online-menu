@@ -394,22 +394,103 @@ body:has(.menu-list) {
     color: var(--modal-text);
 }
 
-.food-modal__body .food-modal__image-wrap {
+.food-modal__body .food-modal__banner-wrap {
+    position: relative;
     width: 100%;
     border-radius: 18px;
     overflow: hidden;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
     background: rgba(0, 0, 0, 0.2);
     border: 1px solid var(--modal-glass-border);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
-.food-modal__body .food-modal__image {
+.food-modal__body .food-modal__btn-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3rem;
+    height: 3rem;
+    min-width: 44px;
+    min-height: 44px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 10;
+    transition: background 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.food-modal__body .food-modal__btn-nav:hover {
+    background: rgba(0, 0, 0, 0.75);
+}
+
+.food-modal__body .food-modal__btn-nav:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.food-modal__body .food-modal__btn-prev {
+    left: 0.75rem;
+}
+
+.food-modal__body .food-modal__btn-next {
+    right: 0.75rem;
+}
+
+.food-modal__body .food-modal__banner {
+    position: relative;
+    z-index: 0;
     width: 100%;
     height: auto;
-    max-height: 280px;
+    max-height: 320px;
     object-fit: cover;
     display: block;
+    vertical-align: middle;
+}
+
+.food-modal__body .food-modal__gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.food-modal__body .food-modal__thumb {
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.food-modal__body .food-modal__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.food-modal__body .food-modal__thumb:hover {
+    opacity: 0.9;
+}
+
+.food-modal__body .food-modal__thumb--active,
+.food-modal__body .food-modal__thumb:focus {
+    border-color: var(--modal-price);
 }
 
 .food-modal__body .food-modal__title {
